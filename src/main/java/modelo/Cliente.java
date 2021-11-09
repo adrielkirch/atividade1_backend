@@ -10,15 +10,21 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.google.gson.annotations.Expose;
+
 
 @Entity 
 @Table (name = "cliente")
 public class Cliente {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Expose
 	private Long id;
+	@Expose
 	private String nome;
+	@Expose
 	private String complemento;
+	@Expose
 	private Integer numero;
 	
 	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

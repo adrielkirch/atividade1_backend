@@ -12,8 +12,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import modelo.Cliente;
+import repositorio.ClienteCidadeRepositorio;
 import repositorio.ClienteRepositorio;
 
 import javax.persistence.EntityManager;
@@ -25,7 +29,8 @@ public class ClienteApi extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	private ClienteRepositorio clienteRepositorio = new ClienteRepositorio();
-	private Gson gson = new Gson();
+	private ClienteCidadeRepositorio clienteCidadeRepositorio = new ClienteCidadeRepositorio();
+	private Gson gsonBuilder = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -73,6 +78,9 @@ public class ClienteApi extends HttpServlet {
 			case "obterTodos":
 				obterTodos(request, response);
 				break;
+			case "obterPorCidade":
+				obterPorCidade(request, response);
+				break;
 			default:
 				response.getWriter().println("Valor do parametro invalido.");
 			}
@@ -99,7 +107,7 @@ public class ClienteApi extends HttpServlet {
 
 			Cliente novoCliente = this.clienteRepositorio.adicionar(nome, complemento, Integer.parseInt(numero));
 			// Gson
-			String clienteJsonString = this.gson.toJson(novoCliente);
+			String clienteJsonString = this.gsonBuilder.toJson(novoCliente);
 			PrintWriter out = response.getWriter();
 			response.setCharacterEncoding("UTF-8");
 			out.print(clienteJsonString);
@@ -123,7 +131,7 @@ public class ClienteApi extends HttpServlet {
 			Cliente clienteAtualizado = this.clienteRepositorio.atualizar(Long.parseLong(id), nome, complemento,
 					Integer.parseInt(numero));
 			// Gson
-			String clienteJsonString = this.gson.toJson(clienteAtualizado);
+			String clienteJsonString = this.gsonBuilder.toJson(clienteAtualizado);
 			PrintWriter out = response.getWriter();
 			response.setCharacterEncoding("UTF-8");
 			out.print(clienteJsonString);
@@ -185,7 +193,7 @@ public class ClienteApi extends HttpServlet {
 			Cliente cliente = this.clienteRepositorio.obterPorId(Long.parseLong(id));
 
 			// Gson
-			String clienteJsonString = this.gson.toJson(cliente);
+			String clienteJsonString = this.gsonBuilder.toJson(cliente);
 			PrintWriter out = response.getWriter();
 			response.setCharacterEncoding("UTF-8");
 			out.print(clienteJsonString);
@@ -195,14 +203,47 @@ public class ClienteApi extends HttpServlet {
 
 	private void obterTodos(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		ArrayList<Cliente> clientes= this.clienteRepositorio.obterTodos();
-		
+		ArrayList<Cliente> clientes = this.clienteRepositorio.obterTodos();
+
 		// Gson
-		String clientesJsonString = this.gson.toJson(clientes);
+		String clientesJsonString = this.gsonBuilder.toJson(clientes);
 		PrintWriter out = response.getWriter();
 		response.setCharacterEncoding("UTF-8");
 		out.print(clientesJsonString);
 		out.flush();
+	}
+
+	private void obterPorCidade(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String cidade = request.getParameter("cidade");
+		String uf = request.getParameter("uf");
+
+		if (uf == null || cidade == null) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.getWriter().println("Parametro 'cidade' e 'uf' devem ser informados.");
+		} else {
+
+			JsonObject mainJson = new JsonObject();
+			mainJson.addProperty("cidade", cidade);
+			mainJson.addProperty("uf", uf);
+
+			ArrayList<Cliente> listaClientes = this.clienteCidadeRepositorio.obterPorCidade(cidade, uf);
+			String strJson = this.gsonBuilder.toJson(listaClientes);
+
+			JsonElement jsonElement = new JsonElement() {
+				@Override
+				public JsonElement deepCopy() {
+					return null;
+				}
+			};
+
+			jsonElement = JsonParser.parseString(strJson);
+			mainJson.add("clientes", jsonElement);
+			strJson = gsonBuilder.toJson(mainJson);
+			PrintWriter out = response.getWriter();
+			response.setCharacterEncoding("UTF-8");
+			out.print(strJson);
+			out.flush();
+		}
 	}
 
 }

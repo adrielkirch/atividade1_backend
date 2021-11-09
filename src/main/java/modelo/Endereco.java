@@ -8,16 +8,24 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.google.gson.annotations.Expose;
+
 @Entity
 @Table (name = "endereco")
 public class Endereco {
 	@Id                                                  
 	@GeneratedValue(strategy = GenerationType.IDENTITY)  
+	@Expose
 	private Long id;
+	@Expose
 	private String logradouro;
+	@Expose
 	private Integer cep;
+	@Expose
 	private String bairro;
+	@Expose
 	private String cidade;
+	@Expose
 	private UnidadeFederativa uf;
 	
 	public Endereco() {
