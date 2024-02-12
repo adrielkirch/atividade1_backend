@@ -15,17 +15,3 @@ Relizar o registro de cliente com seu respectivo endereço.
 (Considerar um CEP por registro)
 * Alterar endereços
 
-## Prazo
-A Atividade deverá ser desenvolvida na sala de aula as 6º
-Data de apresentação 15/10.
-
-### Informações adicionais
-* As classes concretas já estão definidas
-* As dependências já estão configuradas, MENOS O BANCO DE DADOS
-* O banco de dados é de sua escolha
-* Deverá ser desenvolvido
-1. Os endpoints necessários
-2. As consultas necessárias
-3. Os DTOs necessários
-4. Deve ser configurado o persistence.xml para adequar a sua realidade 
-
